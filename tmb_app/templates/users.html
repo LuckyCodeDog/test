@@ -1,0 +1,102 @@
+{% extends 'layout.html' %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+
+<style>
+    .toggle-bar {
+        width: 50px;
+        height: 25px;
+        background-color: #ccc;
+        border-radius: 25px;
+        position: relative;
+        transition: background-color 0.3s;
+        border: none;
+        outline: none;
+        cursor: pointer;
+    }
+    .toggle-bar.active {
+        background-color: #4caf50;
+    }
+    .toggle-circle {
+        width: 21px;
+        height: 21px;
+        background-color: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+    }
+    .toggle-bar.active .toggle-circle {
+        transform: translateX(25px);
+    }
+</style>
+
+
+<div class="container mt-4">
+    <h2 class="mb-4">User Management</h2>
+
+    <!-- Search Form -->
+    <div class="mb-4">
+        <form class="d-flex w-75 mx-auto" action="{{ url_for('admin.user_management') }}" method="GET">
+            <input class="form-control me-2" id="query" name="query" type="search" placeholder="Search via customer names or usernames" aria-label="Search" value="{{ query }}">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- User Table -->
+    <table class="table table-striped">
+        <thead>
+            <tr class="text-start align-middle">
+                <th>Profile Image</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Date of Birth</th>
+                <th>Location</th>
+                <th>Role</th>
+                <th>Active Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in userlist %}
+            <tr class="align-middle text-start">
+                <td>
+                    <img src="{{ user.profile_image or '/static/profile_images/default.jpg' }}" alt="Profile Image" class="img-thumbnail" style="width: 50px; height: 50px;">
+                </td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.fullname }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.dob }}</td>
+                <td>{{ user.location }}</td>
+                <td>
+                    <form action="{{ url_for('admin.user_management') }}" method="POST">
+                        <input type="hidden" name="user_id" value="{{ user.user_id }}">
+                        <select name="role" onchange="this.form.submit()" class="form-select"
+                        {% if user.user_id == user_id %} disabled title="You can't change the role of your own account!" {% endif %}>
+                            <option value="member" {% if user.role == 'member' %} selected {% endif %}>Member</option>
+                            <option value="admin" {% if user.role == 'admin' %} selected {% endif %}>Admin</option>
+                            <option value="moderator" {% if user.role == 'moderator' %} selected {% endif %}>Moderator</option>
+                        </select>
+                    </form>
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.user_management') }}" class="d-inline">
+                        <input type="hidden" name="user_id" value="{{ user.user_id }}">
+                        <input type="hidden" name="status" value="{% if user.status == 'active' %}inactive{% else %}active{% endif %}">
+                        <button type="submit" class="toggle-bar {% if user.status == 'active' %}active{% endif %}"
+                        {% if user.user_id == user_id %} disabled title="You can't deactivate your own account!" {% endif %}>
+                            <div class="toggle-circle"></div>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+
+<h1>User Profile</h1>
+    <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Profile Image">
+
+
+
+
+{% endblock %}
